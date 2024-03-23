@@ -1,0 +1,234 @@
+{% extends "base.html" %} {% block title %}Self-Help - ProEmPo{% endblock %} {% block content
+%}
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
+      "Lucida Sans", Arial, sans-serif;
+  }
+
+  section {
+    background-color: white;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    box-shadow: 0 0 50px rgba(172, 123, 196, 0.409);
+  }
+
+  h1 {
+    background-color: rgba(152, 125, 209, 0.65);
+    margin-top: 40px;
+    margin-bottom: 0px;
+    border-top-left-radius: 30px;
+    border-top-right-radius: 30px;
+    padding: 10px;
+    color: #ffffff;
+    box-shadow: 0 0 50px rgba(172, 123, 196, 0.5);
+  }
+
+  h2 {
+    text-align: center;
+  }
+
+  .choices {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  .choice {
+    flex: 1;
+    border: 1px solid white;
+    padding: 20px;
+    margin: 20px;
+    text-align: center;
+    border-radius: 20px;
+    background-color: white;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease-in-out;
+    box-shadow: 0 0 70px rgba(255, 255, 255, 0.644);
+  }
+
+  .choice img {
+    max-width: 100%;
+    height: auto;
+    transition: filter 0.3s ease;
+    border-radius: 20px;
+  }
+
+  .choice h3 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
+
+  .choice p {
+    font-size: 1rem;
+    top: 45%;
+  }
+
+  .choice h3,
+  .choice p,
+  .choice a {
+    opacity: 0;
+    position: absolute;
+    color: rgb(238, 235, 251);
+    width: 90%;
+    text-align: center;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    transition: opacity 0.2s ease-in-out;
+  }
+
+  .choice h3 {
+    top: 20%;
+  }
+
+  .choice a {
+    bottom: 20%;
+    font-style: italic;
+  }
+
+  .choice .regularMeditation {
+    bottom: 15%;
+  }
+
+  .choice:hover img {
+    filter: brightness(20%);
+  }
+
+  .choice:hover h3,
+  .choice:hover p,
+  .choice:hover a {
+    opacity: 1;
+    padding: 10px;
+  }
+
+  .choice:hover .regularMeditation {
+    bottom: 5%;
+  }
+
+  .choice .viewFlashcards {
+    bottom: 10%;
+  }
+
+  @media (max-width: 1000px) {
+    .choices {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .choice {
+      width: 350px;
+    }
+
+    .choice img {
+      width: 200px;
+      margin-left: 150px;
+    }
+
+    .choice:hover img {
+      filter: brightness(100%);
+    }
+
+    .choice h3,
+    .choice p,
+    .choice a {
+      color: black;
+      text-align: left;
+      opacity: 1;
+      width: 180px;
+      margin-left: -75px;
+    }
+
+    .choice a {
+      bottom: 3%;
+    }
+
+    .choice .regularMeditation {
+      bottom: 3%;
+    }
+    .choice .bearMeditation {
+      bottom: 15%;
+    }
+  }
+</style>
+
+<div class="subcontainer">
+  <div class="box">
+    <div class="title-box">
+      <h1 id="title" align="center">{{cSelfWork}}</h1>
+    </div>
+    <section id="study">
+      <div class="choices">
+        <div class="choice">
+          <img src="../static/pomodoroHelpPic.png" alt="Pomodoro Technique" />
+          <h3>Pomodoro</h3>
+          <p>{{pomodoroDescription}}</p>
+          <a href="/pomodoro">{{begin}} ></a>
+        </div>
+        <div class="choice" id="flashcardsChoice">
+          <img src="../static/flashcardsHelpPic.png" alt="Flashcards" />
+          <h3 id="flashcardsName">{{flashcards}}</h3>
+          <p id="flashcardsDescription">
+            {{flashcardsDescription}}
+          </p>
+          <a class="createFlashcards" href="/CreateFlashcards">{{create}}</a>
+          <a class="viewFlashcards" href="/ViewFlashcards">{{view}}</a>
+        </div>
+        <div class="choice" id="rubberDuck">
+          <img src="../static/feynmanhelpPic.png" alt="Rubber Duck method" />
+          <h3 id="rubberDuckName">Feynman</h3>
+          <p id="feynmanDescription">
+           {{feynmanDescription}} 
+          </p>
+          <a href="/feynman">{{begin}} ></a>
+        </div>
+      </div>
+    </section>
+
+    <div class="subcontainer">
+      <div class="box">
+        <div class="title-box">
+          <h1 id="title" align="center">{{iSelfWork}}</h1>
+        </div>
+        <section id="relaxation">
+          <div class="choices">
+            <div class="choice" id="gratitudeChoice">
+              <img src="../static/gratitudeHelpPic.png" alt="Gratitude" />
+              <h3 id="prideName">{{accomplishments}}</h3>
+              <p id="prideDescription">
+              {{prideDescription}}
+              </p>
+              <a href="/accomplishments">{{begin}} > </a>
+            </div>
+            <div class="choice">
+              <img src="../static/journalPic.png" alt="Journaling" />
+              <h3>{{goals}}</h3>
+              <p>{{goalsDescription}}</p>
+              <a href="/goals">{{begin}} > </a>
+            </div>
+            <div class="choice" id="meditationChoice">
+              <img src="../static/helpMeditation.png" alt="Meditation" />
+              <h3 id="meditationName">{{meditation}}</h3>
+              <p id="meditationDescription">
+                {{meditationDescription}}
+              </p>
+              <a class="bearMeditation" href="/bearMeditation"
+                >{{youngEdition}} >
+              </a>
+              <a class="regularMeditation" href="/regularMeditation"
+                >{{collegeEdition}} >
+              </a>
+            </div>
+          </div>
+        </section>
+
+        {% endblock %}
+      </div>
+    </div>
+  </div>
+</div>

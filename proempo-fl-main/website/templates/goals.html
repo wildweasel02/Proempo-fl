@@ -1,0 +1,500 @@
+{% extends "base.html" %}
+
+{% block title %}My Goals - ProEmPo{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="box">
+      <div class="title-box">
+        <h1 id="title" align="center">{{mygoals}}</h1>
+      </div>
+  <div class="main">
+    <ul class="section">
+      <li class="item">
+        <div class="card" id="card1">
+          <div class="card_content">
+            <div class="card_text">
+                <h2 class="firstLetter">S</h2>
+                <p class="categoryName">{{specific}}</p>
+                <p class="question">{{specificQ}}</p>
+                <textarea type="text" id="textbox" name="specific" placeholder="{{answerhere}}">{% if previous_goals and previous_goals[-1].status == 'P' %}{{ previous_goals[-1].specific|e }}{% endif %}</textarea>
+              </div>
+          </div>
+        </div>
+      </li>
+      <li class="item">
+        <div class="card" id="card2">
+          <div class="card_content">
+            <div class="card_text">
+                <h2 class="firstLetter">M</h2>
+                <p class="categoryName">{{measurable}}</p>
+                <p class="question">{{measurableQ}}</p>
+                <textarea type="text" id="textbox" name="measurable" placeholder="{{answerhere}}">{% if previous_goals and previous_goals[-1].status == 'P' %}{{ previous_goals[-1].measurable }}{% endif %}</textarea>
+              </div>
+          </div>
+        </div>
+      </li>
+      <li class="item">
+        <div class="card" id="card3">
+          <div class="card_content">
+            <div class="card_text">
+                <h2 class="firstLetter">A</h2>
+                <p class="categoryName">{{achievable}}</p>
+                <p class="question">{{achievableQ}}</p>
+                <textarea type="text" id="textbox" name="achievable" placeholder="{{answerhere}}">{% if previous_goals and previous_goals[-1].status == 'P' %}{{ previous_goals[-1].achievable }}{% endif %}</textarea>
+              </div>
+          </div>
+        </div>
+      </li>
+      <li class="item">
+        <div class="card" id="card4">
+          <div class="card_content">
+            <div class="card_text">
+                <h2 class="firstLetter">R</h2>
+                <p class="categoryName">{{relevant}}</p>        
+                <p class="question">{{relevantQ}}</p>
+                <textarea type="text" id="textbox" name="relevant" placeholder="{{answerhere}}">{% if previous_goals and previous_goals[-1].status == 'P' %}{{ previous_goals[-1].relevant }}{% endif %}</textarea>
+              </div>
+          </div>
+        </div>
+      </li>
+      <li class="item">
+        <div class="card" id="card5">
+          <div class="card_content">
+            <div class="card_text">
+                <h2 class="firstLetter">T</h2>
+                <p class="categoryName">{{timely}}</p>
+                <p class="question">{{timelyQ}}</p>
+                <textarea type="text" id="textbox" name="timely" placeholder="{{answerhere}}">{% if previous_goals and previous_goals[-1].status == 'P' %}{{ previous_goals[-1].timely }}{% endif %}</textarea>
+              </div>
+          </div>
+        </div>
+      </li>
+    </ul>
+
+
+    <div class="btn-container">
+      <div class="save-btn btn" >
+        <button class="save-button" onclick="saveGoalEntry()">{{saveGoal}}</button>
+      </div>
+      <div class="complete-btn btn" >
+        <button class="complete-button" onclick="completedGoal()">{{goalCompleted}}</button>
+      </div>
+      <div class="see-all-goals-btn btn" >
+        <button class="see-all-goals-button" id="showGoalsBtn">{{seeAllGoals}}</button>
+      </div>
+    </div>
+
+
+<!-- modal -->
+<div class="modal" id="goalsModal" style="display: none;">
+  <div class="modal-content">
+    <span class="close" id="closeModal">&times;</span>
+    <h2 style="color: black;">{{goalsAll}}</h2>
+    <ul id="goalsList">
+      <!-- the list of goals will be populated here -->
+    </ul>
+  </div>
+</div>
+
+    <div class="explanation">
+      <p>{{explanation1}} </p>
+      <p class="itemized">&bull; {{explanation2}}</p>
+      <p class="itemized">&bull; {{explanation3}}</p>
+      <p class="itemized">&bull; {{explanation4}}</p>
+      <p class="itemized">&bull; {{explanation5}}</p>
+      <p class="itemized">&bull; {{explanation6}}</p>
+      <p>{{explanation7}}</p>
+  </div>
+  </div>
+  
+  
+  <style>
+    h1 {
+      background-color: rgba(152, 125, 209, 0.65);
+      margin-top: 40px;
+      margin-bottom: 0px;
+      border-top-left-radius: 30px;
+      border-top-right-radius: 30px;
+      padding: 10px;
+      color: #ffffff;
+      box-shadow: 0 0 50px rgba(172, 123, 196, 0.5);
+    }
+  
+    .main {
+      max-width: 1500px;
+      background-color: white;
+      padding: 10px;
+      border-bottom-left-radius: 20px;
+      border-bottom-right-radius: 20px;
+      box-shadow: 0 0 50px rgba(206, 186, 217, 0.5);
+      margin-bottom: 40px;
+    }
+  
+    .section {
+      display: grid;
+      grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+      margin: 0px;
+      padding: 0px;
+    }
+  
+    .item {
+      margin-top: 30px;
+      display: flex;
+      padding: 10px;
+      filter:drop-shadow(0 0 5px rgba(206, 186, 217, 0.5));
+    }
+  
+    .card {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      width: 200px;
+      padding: 10px;
+      justify-content: center;
+      align-items: center; 
+      height: 600px;
+      border-radius: 700px;
+      box-shadow:0 0 20px rgba(172, 123, 196, 0.5);
+    }
+
+    #card1 {
+      background-color: rgba(40, 5, 85, 0.64);
+    }
+
+    #card2 {
+      background-color: rgba(54, 14, 118, 0.638);
+    }
+
+    #card3 {
+      background-color: rgba(83, 30, 152, 0.617);
+    }
+
+    #card4 {
+      background-color:  rgba(107, 45, 182, 0.615);
+    }
+
+    #card5 {
+      background-color:rgba(136, 67, 220, 0.645);
+    }
+
+    h2, p, #textbox{
+        color: rgb(242, 235, 249);
+        text-align: center;
+    }
+
+    .firstLetter {
+        font-size: 50pt;
+        font-weight: bold;
+    }
+
+    .categoryName {
+      margin-bottom: 30px;
+      margin-top: 40px;
+      text-decoration: underline;
+    }
+
+    .question {
+      margin-bottom: 30px;
+    }
+
+    #textbox {
+        width:170px;
+        color: black;
+        border-radius: 5px;
+        border: none;
+        height: 180px;
+    }
+
+    .btn-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 30px;
+  padding: 10px 100px;
+}
+
+.save-button,
+.complete-button,
+.see-all-goals-button {
+  flex: 1; 
+  background-color: #925bae9c;
+  color: white;
+  width: 200px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border-radius: 10px;
+  border: none;
+}
+
+
+.see-all-goals-button:hover {
+  background-color: #d6101088;
+  color: black;
+}
+
+  .save-button:hover {
+      background-color: #ffb700ad;
+      color: black;
+    }
+
+
+  .complete-button:hover {
+    background-color: #10bfd688;
+    color: black;
+  }
+
+    .explanation {
+      margin: 60px 30px;
+      border-radius: 10px;
+      box-shadow:0 0 20px rgba(206, 174, 222, 0.5);
+      padding: 30px;
+      background-color: rgba(187, 170, 223, 0.65);;
+    }
+
+    .explanation p {
+      color: rgb(68, 62, 62);
+      text-align: left; 
+    }
+
+    .itemized {
+      margin: 0px 100px;
+      margin-bottom: 10px;
+    }
+
+    .add-another p {
+      color: rgb(95, 87, 87);
+    }
+
+    .add-another p:hover {
+      text-decoration: underline; 
+      font-style: italic; 
+      cursor: pointer;
+      color: black;
+    }
+
+
+    .modal {
+  display: none;
+  position: fixed;
+  background-color: #e7ddf7;
+  border: 1px solid #400078;
+  border-radius: 20px;
+  padding: 10px;
+  z-index: 1;
+  max-width: 600px; 
+  right: 0;
+  margin: 100px auto; 
+  margin-bottom: 100px;
+}
+
+.modal h2 {
+  margin-bottom: 20px
+}
+
+  .markCompletedBtn {
+    margin-left: 20px;
+    background-color: #dddff7;
+    border: none;
+    font-size: 15px;
+    padding: 10px;
+    border-radius: 10px;
+  }
+
+  .warning-message {
+    display: none; 
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgb(116, 85, 209); 
+    color: #000000; 
+    font-size: 24px;
+    text-align: center;
+    padding: 20px;
+}
+
+.warning-message p {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+}
+
+
+@media screen and (max-width: 1200px) {
+    .warning-message {
+        display: block;
+    }
+}
+
+  </style>
+
+<div class="warning-message" id="small-screen-warning">
+  <p>Please access this page from a larger screen for the best experience.</p>
+</div>
+
+<script>
+  function validateTextareas() {
+    const specific = document.querySelector('textarea[name="specific"]').value;
+    const measurable = document.querySelector('textarea[name="measurable"]').value;
+    const achievable = document.querySelector('textarea[name="achievable"]').value;
+    const relevant = document.querySelector('textarea[name="relevant"]').value;
+    const timely = document.querySelector('textarea[name="timely"]').value;
+
+    if (!specific || !measurable || !achievable || !relevant || !timely) {
+      alert("Please answer all the questions in the 'smart' approach.");
+      return false;
+    }
+
+    return true;
+  }
+
+  function saveGoalEntry() {
+    if (validateTextareas()) {
+      const specific = document.querySelector('textarea[name="specific"]').value;
+      const measurable = document.querySelector('textarea[name="measurable"]').value;
+      const achievable = document.querySelector('textarea[name="achievable"]').value;
+      const relevant = document.querySelector('textarea[name="relevant"]').value;
+      const timely = document.querySelector('textarea[name="timely"]').value;
+      const status = "P";
+
+      const data = {
+        specific,
+        measurable,
+        achievable,
+        relevant,
+        timely, 
+        status
+      };
+
+      fetch('/save_goal', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          alert(data.message);
+          location.reload(true);
+
+        })
+        .catch((error) => {
+          alert(error);
+        });
+    }
+  }
+</script>
+
+<script>
+  function completedGoal() {
+    if (validateTextareas()) {
+        var goalId = {% if previous_goals and previous_goals|length > 0 %}{{ previous_goals[-1].id }}{% else %}null{% endif %};
+        if (goalId !== null) {
+            markGoalAsCompleted(goalId);
+        } else {
+            alert("No goals available to mark as completed. If you have a goal written, save it first.");
+        }
+    } else {
+        alert("All questions must be answered before processing the goal.");
+    }
+  }
+
+  function markGoalAsCompleted(goalId) {
+    fetch(`/complete_goal/${goalId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+    .then((response) => response.json())
+    .then((data) => {
+        if (data.message === 'Goal marked as completed successfully') {
+            alert("Goal marked as completed");
+        } else {
+            alert("Failed to mark goal as completed");
+        }
+    })
+    .catch((error) => {
+        alert("An error has occurred while marking the goal as completed. Please try again later or report the issue.");
+    });
+  }
+</script>
+
+
+<script>
+  // when the user clicks "See all goals" button
+document.getElementById("showGoalsBtn").addEventListener("click", function () {
+  // display the modal
+  var modal = document.getElementById("goalsModal");
+  modal.style.display = "block";
+
+  fetch("/fetch_goals") 
+    .then((response) => response.json())
+    .then((data) => {
+      var goalsList = document.getElementById("goalsList");
+      goalsList.innerHTML = ""; // Clear the list
+
+      data.goals.forEach(function (goal) {
+        var listItem = document.createElement("li");
+        listItem.className = "listItem";
+        listItem.textContent = goal.specific;
+
+        // if the goal is pending add a button to mark as completed
+        if (goal.status === "P") {
+          var markCompletedBtn = document.createElement("button");
+          markCompletedBtn.textContent = "Mark as Completed";
+          markCompletedBtn.className = "markCompletedBtn"
+          markCompletedBtn.addEventListener("click", function () {
+            markGoalAsCompleted(goal.id);
+
+            listItem.removeChild(markCompletedBtn);
+          });
+          listItem.appendChild(markCompletedBtn);
+        }
+
+        goalsList.appendChild(listItem);
+      });
+    });
+});
+
+// Function to mark a goal as completed
+function markGoalAsCompleted(goalId) {
+  fetch(`/complete_goal/${goalId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.message === "Goal marked as completed successfully") {
+      } else {
+        alert("Failed to mark the goal as completed. Try again later.");
+      }
+    })
+    /*
+    .catch((error) => {
+      alert("An error occurred.");
+    });
+    */
+    location.reload(true);
+}
+
+
+// Close the modal when the user clicks the close button
+document.getElementById("closeModal").addEventListener("click", function () {
+  var modal = document.getElementById("goalsModal");
+  modal.style.display = "none";
+});
+
+</script>
+
+
+  
+{% endblock %}
+  

@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+{% block title %}Feynman - ProEmPo{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="box">
+      <div class="title-box">
+        <h1 id="title" align="center">{{title}}</h1>
+      </div>
+<div class="container2">
+<div class="feynman-info">
+    <a id="feynmanInfoLink" href="#">{{question}}</a>
+</div>
+    <div id="popup" class="popup">
+    <div class="popup-content">
+        <span class="close" id="closePopup">&times;</span>
+        <p>{{explanation1}}</p>
+        {% if user.language == 'en' %}
+        <img src="../static/feynman-description.avif" alt="image" class="feynman-description-img">
+        {% else %}
+        <img src="../static/feynman-description-ro.png" alt="image" class="feynman-description-img">
+        {% endif %}
+        <p>
+        {{explanation2}}
+        </p>
+        <p>{{explanation3}} </p>
+    </div>
+    </div>
+<div class="main">
+    <div class="page">
+        <div class="page_content">
+            <div class="text_content">
+                <h2 class="page_title" contenteditable="true" onfocus="clearPlaceholder(this)">
+                    {% if latest_entry and latest_entry.title %}
+                        {{ latest_entry.title }}
+                    {% else %}
+                        {{writeTitle}}
+                    {% endif %}
+                </h2>
+                <p class="editable" contenteditable="true" onfocus="clearPlaceholder(this)">
+                    {% if latest_entry and latest_entry.description %}
+                        {{ latest_entry.description | safe }}
+                    {% else %}
+                        {{writeDescription}}
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+    
+</div>
+<button onclick="startNewEntry()">{{startNew}}</button>
+<button onclick="saveToDatabase()">{{RememberThoughts}}</button>
+</div>
+<style>
+    h1 {
+      background-color: rgba(152, 125, 209, 0.65);
+      margin-top: 40px;
+      margin-bottom: 0px;
+      border-top-left-radius: 30px;
+      border-top-right-radius: 30px;
+      padding: 10px;
+      color: #ffffff;
+      box-shadow: 0 0 50px rgba(172, 123, 196, 0.5);
+    }
+
+
+    .container2 {
+        max-width: 1500px;
+        background-color: white;
+        padding: 10px;
+        border-bottom-left-radius: 20px;
+        border-bottom-right-radius: 20px;
+        box-shadow: 0 0 50px rgba(206, 186, 217, 0.5);
+        margin-bottom: 40px;
+    }
+
+
+    .main {
+        max-width: 90%;
+        margin: 30px auto;
+        font-family: monospace;
+        font-size: 15px;
+    }
+
+    .feynman-info {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    #feynmanInfoLink {
+        color: #8c83cf;
+    }
+
+    .feynman-description-img {
+        max-width: 80%;
+        max-height: 100%;
+        display: block;
+        margin: 0 auto;
+    }
+
+    .popup {
+        background-color: rgba(236, 227, 247, 0.693);
+        border-radius: 10px;
+        color: black;
+        width: 90%;
+        margin: auto;
+        padding: 10px 30px;
+    }
+
+    .notes-image {
+        max-width: 20%;
+        position: absolute;
+        right: 10%;
+        bottom: 5%;
+    }
+
+    .page {
+        background-color: white;
+        border-radius: 5px;
+        flex-direction: column;
+        overflow: hidden;
+        padding-left: 30px;
+        background: repeating-linear-gradient(#f8efef90 0 calc(1.2rem - 1px), #b9ddf4 0 1.2rem) right bottom / 100% 100%, linear-gradient(rgba(108, 55, 242, 0.792) 0 0) 30px 0/2px 100% #fff;
+        background-repeat: no-repeat;
+        line-height: 1.2rem;
+        height: 75vh;
+        -webkit-mask: radial-gradient(circle .8rem at 2px 50%, #0000 98%, #2b0707) 0 0/100% 2.4rem;
+
+    }
+
+    .page_content {
+        padding: 1.2rem;
+    }
+
+    h2.page_title, p {
+        margin: 1.2rem 0;
+    }
+
+    h2.page_title {
+        font-size: 1.2em;
+    }
+
+    button {
+        display: block;
+        margin: 0 auto;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        background-color: #8b7cb3;
+        color: #fff;
+        cursor: pointer;
+        margin-bottom: 20px;
+    }
+
+    button:hover {
+        background-color: #ffb700ad;
+        color: black;
+    }
+
+</style>
+
+
+<script>
+    function startNewEntry() {
+        fetch('/start-new-entry', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log('New entry created successfully');
+                // Reload the page to reflect the new entry
+                window.location.reload();
+            } else {
+                console.error('Failed to create a new entry');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+</script>
+
+
+<script>
+    function saveToDatabase() {
+        const pageTitle = document.querySelector('.page_title').innerText;
+        const description = document.querySelector('.editable').innerText;
+
+        fetch('/save-data', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ title: pageTitle, description: description }),
+        })
+        .then(response => {
+            if (response.ok) {
+                alert('Data saved successfully');
+                // Optionally, you can add further actions or user feedback here
+            } else {
+                alert('Failed to save data');
+            }
+        })
+        .catch(error => {
+            alert('Error:', error);
+        });
+    }
+</script>
+
+<script>
+    function clearPlaceholder(element) {
+        if (element.textContent.trim() === "Write topic here" || element.textContent.trim() === "Write description here") {
+            element.textContent = "";
+        }
+    }
+</script>
+
+<script>
+    // JavaScript for handling the popup
+    const feynmanInfoLink = document.getElementById('feynmanInfoLink');
+    const popup = document.getElementById('popup');
+    const closePopup = document.getElementById('closePopup');
+
+    // Initially hide the popup
+    popup.style.display = 'none';
+
+    // Show the popup when clicking the "What is Pomodoro?" link
+    feynmanInfoLink.addEventListener('click', (event) => {
+        event.preventDefault();
+        popup.style.display = 'block';
+    });
+
+    // Close the popup when clicking the close button (x)
+    closePopup.addEventListener('click', () => {
+        popup.style.display = 'none';
+    });
+;
+</script>
+
+{% endblock %}

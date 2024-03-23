@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Support - ProEmPo{% endblock %}
+
+{% block content %}
+<style>
+    h1 {
+        background-color: rgba(152, 125, 209, 0.65);
+        margin-top: 40px;
+        margin-bottom: 0px;
+        border-top-left-radius: 30px;
+        border-top-right-radius: 30px;
+        padding: 10px;
+        color: #ffffff;
+        box-shadow: 0 0 50px rgba(172, 123, 196, 0.5);
+    }
+    
+    section {
+        margin-top: 0px;
+        background-color: #fcfcfc;
+        padding: 30px;
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+        box-shadow: 0 0 50px rgba(206, 186, 217, 0.5);
+    }
+    
+    /* Add this CSS to style the "Submit" button */
+    button.btn-primary {
+        background-color: #8b7cb3; /* Purple color */
+        color: #fff; /* Text color */
+        border: none;
+        border-radius: 5px;
+        padding: 7px 10px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    
+    button.btn-primary:hover {
+        background-color: #6a5d8f; /* Darker purple on hover */
+    }
+    
+    
+    </style>
+<h1 align="center">{{supportTitle}}</h1>
+<section>
+<br>
+{% if user.is_admin == 1 %}
+<ul class="list-group list-group-flush" id="tasks">
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th scope="col">Issue Title</th>
+            <th scope="col">Description</th>
+            <th scope="col">E-Mail</th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        {% for support in support|reverse %}
+        <tbody>
+          <tr>
+            <td>{{ support.issue_title }}</td>
+            <td>{{ support.description }}</td>
+            <td>{{ support.email }}</td>
+            <td><a href="mailto:{{ support.email }}?subject=Re:{{ support.issue_title }}&body=%0D%0A%0D%0AIn reply to:%0D%0A{{ support.description }}"><button type="button" class="btn btn-primary"><span aria-hidden="true" class="fa fa-envelope"></span></button></a>
+            <a href="https://mail.google.com/mail/?view=cm&tf=1&to={{ support.email }}&cc=&bcc=&su=Re:{{ support.issue_title }}&body=%0D%0A%0D%0AIn%20reply%20to:%0D%0A{{ support.description }}" target="_blank"><button type="button" class="btn btn-primary"><span aria-hidden="true" class="fa-brands fa-google"></span></button></a></td>
+          </tr>
+        </tbody>
+        {% endfor %}
+    </table>
+  </ul>
+{% else %}
+{% if user.language == 'en' %}
+<p>We value your feedback and are always here to listen. If you have any questions, concerns, or feedback, please don't hesitate to get in touch with us.</p>
+<p>Contact our support team at: <a href="mailto:proempohelpdesk@gmail.com">proempohelpdesk@gmail.com</a></p> <!--support email added-->
+<h2>Contact Form</h2>
+<form action="/submit_support" method="post">
+    <div class="form-group">
+        <label for="issue_title">Issue Title</label>
+        <input type="text" class="form-control" id="issue_title" name="issue_title" required>
+    </div>
+    <div class="form-group">
+        <label for="email">Your Email</label>
+        <input type="text" class="form-control" id="email" name="email" required>
+    </div>
+    <div class="form-group">
+        <label for="description">Issue Description</label>
+        <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+    <button type="button" class="btn btn-secondary" onclick="location.href='/Support'">Cancel</button>
+</form>
+{% else %}
+<p>Apreciem feedback-ul tău și suntem întotdeauna aici să ascultăm. Dacă ai întrebări, nelămuriri sau feedback, te rugăm să nu ezitați să iei legătura cu noi.</p>
+<p>Contactează echipa noastră de suport la: <a href="mailto:proempohelpdesk@gmail.com">proempohelpdesk@gmail.com</a></p> <!--suport email adăugat-->
+<h2>Formular de Contact</h2>
+<form action="/submit_support" method="post">
+    <div class="form-group">
+        <label for="issue_title">Titlu Problema</label>
+        <input type="text" class="form-control" id="issue_title" name="issue_title" required>
+    </div>
+    <div class="form-group">
+        <label for="email">Adresa ta de Email</label>
+        <input type="text" class="form-control" id="email" name="email" required>
+    </div>
+    <div class="form-group">
+        <label for="description">Descriere Problema</label>
+        <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Trimite</button>
+    <button type="button" class="btn btn-secondary" onclick="location.href='/Suport'">Anulează</button>
+</form>
+{% endif %}
+{% endif %}
+</section>
+{% endblock %}

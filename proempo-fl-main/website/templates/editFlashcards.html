@@ -1,0 +1,113 @@
+{% extends "base.html" %} {% block title %}Edit Flashcard - ProEmPo{% endblock %}
+{% block content %}
+
+<div class="mainContainer">
+<h2>{% if user.language == 'ro' %}Editează Cardul{% else%} Edit Card{%endif%}</h2>
+
+<div class="container">
+    <form action="/EditFlashcard/{{ card.id }}" method="POST">
+
+        <div class="field">
+            <label for="lesson">{% if user.language == 'ro' %}Lecție:{% else%} Lesson:{%endif%}</label>
+            <select class="form" id="lesson" name="lesson">
+                <option id ="select" value="" disabled selected>--Select a lesson--</option>
+                {% for lesson in lessons %}
+
+                    <option id="option" value="{{ lesson.id }}" 
+                    {% if card.lesson_id == lesson.id %}selected{% endif %}>--{{ lesson.name }}--</option>
+
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="field">
+            <label for="question">{% if user.language == 'ro' %}Întrebare{% else%} Question{%endif%}:</label>
+            <input type="text" class="form" id="question" name="question" value="{{ card.question }}">
+        </div>
+
+        <div class="field">
+            <label for="answer">{% if user.language == 'ro' %}Răspuns:{% else%} Answer:{%endif%}</label>
+            <textarea class="form" id="answer" name="answer" rows="5">{{ card.answer }}</textarea>
+        </div>
+
+        <button type="submit" class="btn btn-basic" id="submit">{% if user.language == 'ro' %}Salvează Schimbările{% else%} Save Changes{%endif%}</button>
+    </form>
+</div>
+</div>
+<style>
+    h2 {
+        background-color: rgba(152, 125, 209, 0.65);
+        margin-top: 40px;
+        margin-bottom: 0px;
+        border-top-left-radius: 30px;
+        border-top-right-radius: 30px;
+        padding: 10px;
+        color: #ffffff;
+        box-shadow: 0 0 50px rgba(214, 197, 222, 0.5);
+        text-align: center;
+    }
+
+    .mainContainer {
+        max-width: 1000px;
+        background-color: white;
+        border-bottom-left-radius: 20px;
+        border-bottom-right-radius: 20px;
+        box-shadow: 0 0 50px rgba(212, 195, 221, 0.5);
+        border-top-left-radius: 40px;
+        border-top-right-radius: 40px;
+        padding-bottom: 20px;
+    }
+
+    
+
+    #submit {
+        text-align: center;
+        background-color: #a751bb;
+        border: black;
+        margin: 20px auto;
+        color: white;
+        display: block;
+    }
+
+    #submit:hover {
+      background-color: #ffb700ad;
+      color: black;
+    }
+
+    textarea {
+        height: 200px;
+        width: 815px;
+        border-radius: 10px;
+        vertical-align: top;
+        padding: 10px;
+        margin-bottom: 20px;
+    }
+
+    input {
+        border-radius: 10px;
+    }
+
+    select {
+        border-radius: 10px;
+    }
+    
+    #select {
+        text-align: center;
+    }
+
+    #option{
+        text-align: center;
+    }
+
+    #question {
+        width: 800px;
+    }
+
+    .field{
+        margin-top: 20px;
+        padding-left: 25px;
+    }
+        
+</style>
+{% endblock %}
+

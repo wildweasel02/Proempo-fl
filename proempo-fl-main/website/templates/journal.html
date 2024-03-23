@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+{% block title %}Daily Check-In - ProEmPo{% endblock %}
+{% block content %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+<style>
+  .container {
+    max-width: 1080px;
+  }
+  h1 {
+    background-color: rgba(152, 125, 209, 0.65);
+    margin-top: 40px;
+    margin-bottom: 0px;
+    border-top-left-radius: 30px;
+    border-top-right-radius: 30px;
+    padding: 10px;
+    color: #ffffff;
+    box-shadow: 0 0 50px rgba(172, 123, 196, 0.5);
+  }
+
+  .main {
+    max-width: 1500px;
+    background-color: white;
+    padding: 10px;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    box-shadow: 0 0 50px rgba(206, 186, 217, 0.5);
+    margin-bottom: 40px;
+  }
+
+  .section {
+    display: grid;
+    grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+    list-style: none;
+    margin: 0px;
+    padding: 0px;
+  }
+
+  .item {
+    display: flex;
+    padding: 1rem;
+    filter:drop-shadow(0 0 5px rgba(206, 186, 217, 0.5));
+  }
+
+  .card {
+    background-color: white;
+    border-radius: 0.25rem;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding-left: 30px;
+    background: repeating-linear-gradient(#0000 0 calc(1.2rem - 1px),#acd3ed 0 1.2rem) right bottom /100% 100%,linear-gradient(rgb(255, 0, 128) 0 0) 30px 0/2px 100% #fff;
+    background-repeat: no-repeat;
+    line-height: 1.2rem;
+    width: 500px;
+  }
+
+  .card_content {
+    padding: 1.2rem;
+  }
+
+  h2.card_title,p {
+    margin: 1rem 0;
+  }
+  h2.card_title {
+      font-size: 1.4em;
+  }
+
+  img {
+    width: 70px;
+    margin: 5px;
+  }
+
+  .save-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 30px;
+  }
+  
+  .save-button {
+    background-color: #8b7cb3;
+    padding: 10px 20px;
+    color: white;
+    border-radius: 15px;
+    border: none;
+    margin-bottom: 50px;
+  }
+
+  .save-button:hover {
+      background-color: #ffb700ad;
+      color: black;
+    }
+
+  .date-filter-top {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .arrow-button {
+    background: none;
+    border: none;
+    font-size: 25px;
+    cursor: pointer;
+    outline: none;
+  }
+
+  .gratitude-item {
+    display: flex;
+    align-items: center;
+    padding-bottom: 30px;
+  }
+
+  .number {
+    margin-right: 5px;
+    font-weight: bold; 
+  }
+  
+  #current-date {
+    font-size: 20px;
+    margin: 0 10px;
+  }
+</style>
+<div class="container">
+  <div class="box">
+    <div class="title-box">
+      <h1 id="title" align="center">{{journalTitle}}</h1>
+    </div>
+<div class="main">
+  <center>
+  <form method="GET" action="{{ url_for('views.journal') }}" id="previousentry">
+    <label for="previous_entries">{{journalSelect}}</label>
+    <select name="previous_entry" id="previous_entry">
+        <option value="" disabled selected>{{journalChoose}}</option>
+        {% for entry in previous_entries|reverse %}
+            <option value="{{ entry.id }}">{% if user.language == 'en' %} {{ entry.date.strftime('%m/%d/%Y') }} {% else %} {{ entry.date.strftime('%d.%m.%Y') }} {% endif %}</option>
+        {% endfor %}
+    </select>
+    <input class="btn btn-light btn-sm" style="background-color: #8b7cb3; color:#ffffff" type="submit" value={{journalButton}}>
+</form>
+<label for="date">{{journalDate}}</label>
+<input readonly type="date" name="date" {% if selected_entry != None %}value="{{ selected_entry.date }}" {% else %}value="{{ date }}" {% endif %}><br></center>
+<form method="POST">
+  <ul class="section">
+    <li class="item">
+      <div class="card">
+        <div class="card_content">
+          <h2 class="card_title">{{dearJournal}}</h2>
+          <div class="card_text">
+            <!--<p name="dear_journal_content" contenteditable="true" required>Today, I spent my day thinking about... {% if selected_entry != None %}{{ selected_entry.dear_journal_content }}{% endif %}</p>-->
+            <p name="dear_journal_content" contenteditable="false" >{{journalContent}}</p>
+            <textarea style="background-color: transparent; border: transparent;" name="dear_journal_content" rows="10" cols="26" required {% if selected_entry != None %}readonly{% else %}autofocus{% endif %}>{% if selected_entry != None %}{{ selected_entry.dear_journal_content }}{% endif %}</textarea><br>
+          </div>
+        </div>
+      </div>
+    </li>
+    <li class="item">
+      <div class="card">
+        <div class="card_content">
+          <h2 class="card_title">{{gratefulContent}}</h2>
+          <div class="card_text">
+            <div class="gratitude-item">
+              <span class="number">1.</span>
+              <input type="text" style="background-color: transparent; border: transparent;" name="grateful1" {% if selected_entry != None %} value= "{{ selected_entry.grateful_content.split(',')[0] }}" {% endif %} required {% if selected_entry != None %}readonly{% endif %}>
+              <!--<p contenteditable="true"></p>-->
+            </div>
+            <div class="gratitude-item">
+              <span class="number">2.</span>
+              <input type="text" style="background-color: transparent; border: transparent;" name="grateful2" {% if selected_entry != None %} value= "{{ selected_entry.grateful_content.split(',')[1] }}" {% endif %} required {% if selected_entry != None %}readonly{% endif %}>
+              <!--<p contenteditable="true"></p>-->
+            </div>
+            <div class="gratitude-item">
+              <span class="number">3.</span>
+              <input type="text" style="background-color: transparent; border: transparent;" name="grateful3" {% if selected_entry != None %} value= "{{ selected_entry.grateful_content.split(',')[2] }}" {% endif %} required {% if selected_entry != None %}readonly{% endif %}>
+              <!--<p contenteditable="true"></p>-->
+            </div>
+          </div>
+        </div>
+      </div>
+    </li>
+    <li class="item">
+      <div class="card">
+        <div class="card_content">
+          <h2 class="card_title">{{dayTitle}}</h2>
+          <div class="card_text">
+              <div>
+                <label>
+                  <input type="radio" name="day_rating" value="Excellent" required {% if selected_entry %}disabled {% endif %}{% if selected_entry and selected_entry.day_rating == 'Excellent' %}checked {% endif %}> <img src="../static/veryWell.png" alt=""> {{rating_excellent}} 
+                </label>
+              </div>
+              <div>
+                <label>
+                  <input type="radio" name="day_rating" value="Good" required {% if selected_entry %}disabled {% endif %}{% if selected_entry and selected_entry.day_rating == 'Good' %}checked {% endif %}> <img src="../static/well.png" alt="" > {{rating_good}}
+                </label>
+              </div>
+              <div>
+                <label>
+                  <input type="radio" name="day_rating" value="Bad" required {% if selected_entry %}disabled {% endif %}{% if selected_entry and selected_entry.day_rating == 'Bad' %}checked {% endif %}> <img src="../static/bad.png" alt=""> {{rating_bad}}
+                </label>
+              </div>
+              <div>
+                <label>
+                  <input type="radio" name="day_rating" value="Horrible" required {% if selected_entry %}disabled {% endif %}{% if selected_entry and selected_entry.day_rating == 'Horrible' %}checked {% endif %}> <img src="../static/horrible.png" alt=""> {{rating_horrible}}
+                </label>
+              </div>
+          </div>
+        </div>
+      </div>
+    </li>
+  </ul>
+  <center><input class="btn btn-light" style="background-color: #8b7cb3; color:#ffffff" type="submit" {% if selected_entry %}disabled {% endif %} value="{{saveJournal}}"></center>
+  <!--<div class="save-btn" id="save-button-container">
+    <input class="save-button" type="submit" {% if selected_entry %}disabled {% endif %} value="Save Entry">
+  </div>-->
+  </form>
+</div>
+  <center class="no-journals">
+    <h3>{{journalFooter}}</h3>
+    <img src="../static/journaling.gif" />
+<script>
+
+  
+</script>
+
+
+
+    
+{% endblock %}

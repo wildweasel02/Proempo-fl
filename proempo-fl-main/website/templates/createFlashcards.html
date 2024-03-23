@@ -1,0 +1,183 @@
+{% extends "base.html" %} {% block title %}Create FlashCards - ProEmPo{% endblock %} {% block content %}
+
+<h1 id="title" align="center">{% if user.language == 'ro' %}Creează-ți Cardurile Flash{% else %}Create Your Flashcards{% endif %}</h1>
+
+<body> 
+    <div class="ui-container">
+        <form action="/CreateFlashcards" method="POST" class="ui form">
+
+            <div class="field">
+                <label for="lesson">{% if user.language == 'ro' %}Selectați o lecție existentă:{% else%} Select an existing lesson:{%endif%}</label>
+                <select id="lesson" name="lesson">
+                    <option id="select" value=""> {% if user.language == 'ro' %}--Selectați--{% else%} --Select--{%endif%}</option>
+                    {% for lesson in all_lessons %}
+                    <option id="option" value="{{ lesson.id }}">{{ lesson.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+
+            <div class="field1">
+                <label for="new_lesson_name">{% if user.language == 'ro' %}Sau crează o lecție nouă:{% else%} Or Create a new Lesson{%endif%}</label>
+                <input class="new-lesson" id="cLesson" type="text" id="new_lesson_name" name="new_lesson_name">
+            </div>
+
+            <div class="field1">
+                <label for="question">{% if user.language == 'ro' %}Întrebare{% else%} Question{%endif%}:</label>
+                <input id="question" type="text" name="question">
+            </div>
+
+            <div class="field1"> 
+                <label id="answer" for="answer">{% if user.language == 'ro' %}Răspuns:{% else%} Answer:{%endif%}</label>
+                <textarea name="answer" id="" cols="50" rows="10"></textarea>
+            </div>
+
+            <div class="button-container1">
+            <button type="submit" class="btn btn-basic" id="submit">{% if user.language == 'ro' %}Salvează{% else%} Save {%endif%}</button>
+            </div>
+        </form>
+        <br>
+        <div class="button-container2">
+            <button class="btn btn-basic btn2" id="redirect" onclick="redirectToView()">{% if user.language == 'ro' %}Vizualizați cardurile dvs{% else%} View your Flashcards {%endif%}</button>
+        </div>
+    </div>
+</body> 
+
+<script>
+    function redirectToView() {
+        window.location.href = '/ViewFlashcards';
+    }
+</script>
+
+<style>
+
+    *{
+        padding: 0;
+        margin-top: 0px;
+        box-sizing: border-box;
+    }
+
+    h1 {
+        background-color: rgba(152, 125, 209, 0.65);
+        margin-top: 40px;
+        margin-bottom: 0px;
+        border-top-left-radius: 30px;
+        border-top-right-radius: 30px;
+        padding: 10px;
+        color: #ffffff;
+        box-shadow: 0 0 50px rgba(172, 123, 196, 0.5);
+    }
+
+    .field {
+        margin-top: 20px;
+    }
+
+    .field1{
+        margin-top: 10px;
+    }
+
+    .field, .field1 {
+        padding-left: 20px;
+
+    }
+
+    button{
+        padding: 8px;
+        outline: black;
+        cursor: pointer;
+        background-color: blueviolet;
+        text-decoration-color: white;
+        margin-left: 20px
+    }
+
+    .button-container1,
+    .button-container2 {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px; /* Adjust the top margin as needed */
+    }
+
+    .button-container2 {
+        margin-top: -20px;
+    }
+
+    #redirect {
+        background-color: #a751bb;
+        border: black;
+        margin-bottom: 20px;
+        color: white;
+    }
+
+    #redirect:hover {
+      background-color: #ffb700ad;
+      color: black;
+    }
+
+    #submit {
+        background-color: #a751bb;
+        border: black;
+        margin-bottom: 20px;
+        color: white;
+    }
+
+    #submit:hover {
+      background-color: #ffb700ad;
+      color: black;
+    }
+
+    .ui-container {
+        max-width: 1500px;
+        background-color: white;
+        padding: 10px;
+        border-bottom-left-radius: 20px;
+        border-bottom-right-radius: 20px;
+        box-shadow: 0 0 50px rgba(206, 186, 217, 0.5);
+        margin-bottom: 40px;
+
+    }
+
+    textarea {
+        height: 200px;
+        width: 85%;
+        border-radius: 10px;
+        vertical-align: top;
+        padding: 10px;
+        margin-bottom: 20px;
+    }
+
+    input {
+        border-radius: 10px;
+        max-width: 85%;
+        border-width: 1px;
+    }
+
+    select {
+        border-radius: 10px;
+    }
+    
+    #select {
+        text-align: center;
+    }
+
+    #option{
+        text-align: center;
+    }
+
+    #question {
+        width: 730px;
+    }
+
+    #cLesson {
+        width: 500px;
+    }
+
+    @media (max-width: 1000px) {
+        .field1 textarea, input {
+            display: block;
+            width: 85%; /* Adjust the width as needed */
+            margin-top: 10px; /* Add space at the top for separation */
+        }
+    }
+
+</style>
+{% endblock %}

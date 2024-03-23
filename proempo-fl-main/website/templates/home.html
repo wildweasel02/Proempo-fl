@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+{% block title %}Home - ProEmPo{% endblock %}
+{% block content %}
+<style>
+    /* Define your CSS styles here */
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f0f0;
+        margin: 0;
+        padding: 0;
+    }
+
+    @font-face {
+        font-family: 'Courgette';
+        src: url("{{ url_for('static', filename='Courgette-Regular.ttf') }}") format('opentype');
+    }
+
+    .quote-container {
+        max-width: 800px;
+        margin: auto;
+        padding: 20px;
+        background-color: #fcfcfc;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .content-container {
+        display: flex;
+    }
+
+    #clock-box {
+        flex: 1; 
+        background-color: #fcfcfc;
+        border-radius: 15px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin-right: 20px;
+        min-width:384px; 
+        max-width:384px;
+    }
+
+    #quote-container {
+        flex: 2;
+        background-color: #fcfcfc;
+        border-radius: 15px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+    }
+
+    #clockContainer {
+        background-color: #f0f0f0;
+        position: relative;
+        margin: auto;
+        height: 20vw;
+        width: 20vw;
+        background: url("{{ url_for('static', filename='clock.png') }}") no-repeat;
+        background-size: 100%;
+        
+    }
+
+    #hour, #minute, #second {
+        position: absolute;
+        background: #ffccff;
+        border-radius: 10px;
+        transform-origin: bottom;
+    }
+
+    #hour {
+        width: 1.8%;
+        height: 25%;
+        top: 25%;
+        left: 48.85%;
+        opacity: 0.8;
+    }
+
+    #minute {
+        width: 1.6%;
+        height: 30%;
+        top: 19%;
+        left: 48.9%;
+        opacity: 0.8;
+    }
+
+    #second {
+        width: 1%;
+        height: 40%;
+        top: 9%;
+        left: 49.25%;
+        opacity: 0.8;
+        {% if user.hide_second_hand == 1 %}
+        display: none;
+        {% endif %}
+    }
+
+    /* 
+    .white-noise-button {
+        position: absolute;
+        top: 70px;  Adjust the top position as needed 
+        left: 10px;  Adjust the left position as needed 
+        text-align: left;
+    } 
+    Add any additional styles you need */
+
+    .top-container {
+        flex: 2;
+        background-color: #fcfcfc;
+        border-radius: 15px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 10px;
+        margin-top:20px;
+    }
+
+</style>
+</head>
+<body>
+    {% if user.hide_quote != 1 %}
+    <div class="top-container">
+        <!--<h2 align="left"><u>Quote of the Day:</u></h2>-->
+            {% if qod %}
+                <p style="font-family: 'Courgette', Arial, sans-serif; font-size:32px; margin-bottom:0px; text-align: center;">"{{ qod[0] }}" - {{ qod[1] }}</p>
+            {% else %}
+                <p>No quote today.</p>
+            {% endif %}
+    </div>
+    {% endif %}
+    <br>
+    <div class="content-container">
+        <div id="clock-box" style="">
+            <div id="clockContainer">
+                <div id="hour"></div>
+                <div id="minute"></div>
+                <div id="second"></div>
+            </div>
+        </div>
+        <div id="quote-container">
+            <h1 align="center">{{welcome}} {{ user.username }}</h1>
+            <br>
+            <h1 align="center"><u>{{ currentDay }}</u></h1>
+            <br>
+            
+            {% if 0 == 1 %}<a
+                href="/player"
+                target="popup"
+                onclick="window.open('/player','popup','width=600,height=600'); return false;"
+            >
+            <div class="white-noise-button">
+                <button class="btn btn-outline-info" id="white-noise-toggle">{{ openNoisePlayer }}</button></a>
+            </div> {% endif %}
+
+        </div>
+    </div>
+    <div class="content-container" style="padding-top:18px;">
+        {% if user.hide_journal != 1 %}
+        <div id="clock-box" style="min-width:384px; max-width: 384px;">
+        {% if entry_for_today == None %}
+        <br><h5 align="center"><i class="fa-solid fa-face-sad-tear fa-2xl" style="color: #b69ab6;"></i><br><br>{{journalIncomplete}}<br><br></h5><h6 align="center"><a href="/journal">{{clickJournal}}</a></h6>
+        {% else %}
+        <br><h5 align="center"><i class="fa-solid fa-face-smile-beam fa-2xl" style="color: #b69ab6;" ></i><br><br>{{journalComplete}}<br><br></h5>
+        {% endif %}
+        </div>
+        {% endif %}
+        {% if user.hide_tasks != 1 %}
+        <div id="quote-container">
+           
+            {% if user.tasks|length > 0  %}
+           <h3>{{ currenttasks }}</h3>
+           {% for task in tasks|reverse %}
+           <ul style="font-size: 20px; margin-bottom:0;!important">
+            <li style="font-size: 20px;">
+                {{ task.data }} {% if task.due_date != None %}<b style="color:rgb(255, 106, 106)">{{dueReminder}}{{task.due_date.strftime('%m/%d/%Y')}}</b>{% endif %} {% if task.starred != 0 %}{% if task.starred != None %} <i class="fa-solid fa-star" style="color: #ffd700;"></i> {% endif %}{% endif %}
+            </li>
+           </ul>
+           {% endfor %}
+           {% else %}
+           <center>
+           <h3>{{ notasks }}</h3></center>
+           {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+</body>
+<script>
+    function updateClock() {
+        const d = new Date();
+        const hr = d.getHours();
+        const min = d.getMinutes();
+        const sec = d.getSeconds();
+        const msec = d.getMilliseconds();
+
+
+        const secRotation = 6 * sec + 0.006 * msec; 
+        const hourRotation = 30 * hr + min / 2;
+        const minuteRotation = 6 * min;
+        
+        hour.style.transform = `rotate(${hourRotation}deg)`;
+        minute.style.transform = `rotate(${minuteRotation}deg)`;
+        second.style.transform = `rotate(${secRotation}deg)`;
+    }
+
+    setInterval(updateClock, 10);
+    updateClock(); 
+</script>
+{% endblock %}

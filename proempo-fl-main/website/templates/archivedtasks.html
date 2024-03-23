@@ -1,0 +1,149 @@
+{% extends "base.html" %} {% block title %}Archived Tasks - ProEmPo{% endblock %} {% block
+content %}
+<style>
+  {% if user.make_all_buttons_purple %}
+  .btn {
+    background-color: #8b7cb3 !important;
+    border-color: #8b7cb3 !important
+  }
+  {% endif %}
+  .container {
+    max-width: 700px;
+  }
+  .list-group-flush .list-group-item {
+    margin-top: 10px;
+    border-radius: 10px;
+    background-color: #fcfcfc;
+  }
+  #addTaskButton {
+    margin-left: 10px !important;
+  }
+  .navbar {
+    display: none;
+  }
+  .dataLine {
+    margin-left: 5px;
+  }
+  .form-container {
+    background-color: #fcfcfc;
+    padding: 20px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    box-shadow: 0 0 50px rgba(206, 186, 217, 0.5);
+  }
+
+  h1 {
+    background-color: rgba(152, 125, 209, 0.65);
+    margin-top: 40px;
+    margin-bottom: 0px;
+    border-radius: 10px;
+    padding: 10px;
+    color: #ffffff;
+    box-shadow: 0 0 50px rgba(172, 123, 196, 0.5);
+  }
+
+  .no-tasks {
+    background-color: #fcfcfc;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 50px rgba(206, 186, 217, 0.5);
+  }
+
+  #copyright {
+    display:none;
+  }
+  
+</style>
+<div class="container">
+  <div class="box">
+    <div class="title-box">
+      <!--<h1 id="title" align="center">Archived Tasks</h1>-->
+    </div>
+    {% if user.archivedtasks|length > 0 %}
+    <ul class="list-group list-group-flush" id="completed-tasks">
+      {% for archivedtask in user.archivedtasks %}
+      <li
+        class="list-group-item"
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        "
+      >
+        <div>
+          <button
+            class="{% if user.make_all_buttons_purple %}btn btn-primary{% else %}btn btn-outline-primary{% endif %}"
+            onClick="returnTask({{ archivedtask.id }})"
+          >
+            <span id="" class="fa fa-rotate-left"></span>
+          </button>
+          {% if archivedtask.was_completed == 0 %}
+          <span class="dataLine">{{ archivedtask.data }}</span>
+          {% else %}
+          <span class="dataLine"><s>{{ archivedtask.data }}</s></span>
+          {% endif %}
+          {%  if archivedtask.due_date and archivedtask.due_time %}
+            <span class="dataLine" style="margin-left: 10px; color: grey">
+              {{taskDueDate}} {{ archivedtask.due_date.strftime('%m/%d/%Y') }} {{at}} {{ archivedtask.due_time.strftime('%I:%M %p') }}
+            </span>
+          {% elif archivedtask.due_date %}
+            <span class="dataLine" style="margin-left: 10px; color: grey">
+              {{taskDueDate}} {{ archivedtask.due_date.strftime('%m/%d/%Y') }} 
+            </span>
+          {% endif %}
+        </div>
+        <div style="margin-left: auto; color: grey; padding-right: 5px">
+          {{ archivedtask.date.strftime('%I:%M %p %m/%d/%y') }}
+        </div>
+        <button
+          type="button"
+          class="btn btn-danger"
+          onClick="deleteArchivedTask({{ archivedtask.id }})"
+        >
+          <span aria-hidden="true" class="fa fa-fire"></span>
+        </button>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <br />
+    <h2><center>{{noArchivedTasks}}</center></h2>
+    {% endif %}
+  </div>
+</div>
+<script>
+  document.getElementById("task").addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      document.getElementById("addTaskButton").click();
+    }
+  });
+</script>
+<script>
+  function confirmClearAll() {
+    if (confirm("Are you sure you want to clear all completed tasks?")) {
+      clearAllCompletedTasks();
+    }
+  }
+
+  function clearAllCompletedTasks() {
+    fetch("/clear-all-completed-tasks", {
+      method: "POST",
+    }).then((_res) => {
+      window.location.reload();
+    });
+  }
+</script>
+<script>
+  function confirmTaskAction(taskId) {
+    // Display a confirmation dialog
+    if (confirm("Are you sure you want to perform this action?")) {
+      // If the user confirms, execute the task action
+      returnTask(taskId);
+    } else {
+      // If the user cancels, do nothing or perform another action
+    }
+  }
+</script>
+
+{% endblock %}

@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% block title %}FAQ - ProEmPo{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="box">
+      <div class="title-box">
+        <h1 id="title" align="center">{{FAQtitle}}</h1>
+      </div>
+<section>
+<h5 align="center">{{subtitle}}</h5>
+
+<br>
+
+<style>
+    /* Style for the accordion headers */
+    .accordion-label {
+        background-color: #9e79c1;
+        color: white;
+        cursor: pointer;
+        padding: 20px;
+        width: 100%;
+        border: none;
+        text-align: left;
+        outline: none;
+        position: relative; /* Add this for icon positioning */
+    }
+
+    /* Style for the active accordion header */
+    .accordion-label.active {
+        background-color: #555;
+    }
+
+    /* Style for the hidden checkbox input */
+    .accordion-input {
+        display: none;
+    }
+
+    /* Style for the accordion content (initially hidden) */
+    .accordion-content {
+        max-height: 0;
+        overflow: hidden;
+        background-color: #e8d6f4d3;
+        padding: 0 20px; /* Adjust padding to control gap */
+        transition: max-height 0.5s ease-out;
+    }
+
+    /* Style for the expanded accordion content */
+    .accordion-input:checked + .accordion-label + .accordion-content {
+        max-height: 1000px; /* Adjust this value to fit your content */
+    }
+
+    /* Style for the accordion button icons */
+    .accordion-button {
+        position: absolute;
+        top: 50%;
+        right: 20px;
+        transform: translateY(-50%);
+        transition: transform 0.6s ease;
+    }
+   
+        /* Style for the nested accordion button icons */
+    .nested-accordion-button {
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    transition: transform 0.6s ease;
+    }
+
+    /* Rotate the button icon when content is expanded */
+    .nested-accordion-input:checked + .nested-accordion-label .nested-accordion-button {
+    transform: translateY(-50%) rotate(180deg);
+    }
+
+
+    /* Rotate the button icon when content is expanded */
+    .accordion-input:checked + .accordion-label .accordion-button {
+        transform: translateY(-50%) rotate(180deg);
+    }
+
+    /* Style for the nested accordion headers */
+    .nested-accordion-label {
+        background-color: #400765d3;
+        color: white;
+        cursor: pointer;
+        padding: 20px;
+        width: 100%;
+        border: none;
+        text-align: left;
+        outline: none;
+        margin-top: 0px; /* Add margin to separate nested accordions */
+    }
+
+    /* Style for the active nested accordion header */
+    .nested-accordion-label.active {
+        background-color: #fcf882;
+    }
+
+    /* Style for the hidden nested checkbox input */
+    .nested-accordion-input {
+        display: none;
+    }
+
+    /* Style for the nested accordion content (initially hidden) */
+    .nested-accordion-content {
+        max-height: 0;
+        overflow: hidden;
+        background-color: #bf91dcd3;
+        padding: 0 20px; /* Adjust padding to control gap */
+        transition: max-height 0.5s ease-out;
+    }
+
+    /* Style for the expanded nested accordion content */
+    .nested-accordion-input:checked + .nested-accordion-label + .nested-accordion-content {
+        max-height: 300px; /* Adjust this value to fit your content */
+    }
+
+
+    h1 {
+    background-color: rgba(152, 125, 209, 0.65);
+    margin-top: 40px;
+    margin-bottom: 0px;
+    border-top-left-radius: 30px;
+    border-top-right-radius: 30px;
+    padding: 10px;
+    color: #ffffff;
+    box-shadow: 0 0 50px rgba(172, 123, 196, 0.5);
+  }
+
+  section {
+    margin-top: 0px;
+    background-color: #fcfcfc;
+    padding: 30px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    box-shadow: 0 0 50px rgba(206, 186, 217, 0.5);
+  }
+</style>
+
+{% for item in accordion_items %}
+<input type="checkbox" class="accordion-input" id="{{ item.id }}">
+<label class="accordion-label" for="{{ item.id }}">
+    {{ item.title }}
+    <span class="accordion-button">▼</span> <!-- Button icon -->
+</label>
+<div class="accordion-content">
+    <p>{{ item.content }}</p>
+    {% if item.nested_items %}
+        <!-- Nested Accordions -->
+        {% for nested_item in item.nested_items %}
+            <input type="checkbox" class="nested-accordion-input" id="{{ nested_item.id }}">
+            <label class="nested-accordion-label" for="{{ nested_item.id }}">
+                {{ nested_item.title }}
+               <!-- Button icon for nested accordion -->
+            </label>
+            <div class="nested-accordion-content">
+                <p>{{ nested_item.content }}</p>
+            </div>
+        {% endfor %}
+        <!-- End of Nested Accordions -->
+    {% endif %}
+</div>
+{% endfor %}
+
+
+</section>
+</html>
+
+{% endblock %}
+
+

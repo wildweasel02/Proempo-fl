@@ -1,0 +1,396 @@
+{% extends "base.html" %} {% block title %}Tasks - ProEmPo{% endblock %} {% block content
+%}
+<style>
+  {% if user.make_all_buttons_purple %}
+  .btn {
+    background-color: #8b7cb3 !important;
+    border-color: #8b7cb3 !important
+  }
+  {% endif %}
+  .list-group-flush .list-group-item {
+    margin-top: 10px;
+    border-radius: 10px;
+    background-color: #fcfcfc;
+  }
+  #addTaskButton {
+    margin-left: 10px !important;
+  }
+
+  .dataLine {
+    margin-left: 5px;
+  }
+
+  #sleepingAnimal {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .form-container {
+    background-color: #fcfcfc;
+    padding: 20px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    box-shadow: 0 0 50px rgba(206, 186, 217, 0.5);
+  }
+
+  h1 {
+    background-color: rgba(152, 125, 209, 0.65);
+    margin-top: 40px;
+    margin-bottom: 0px;
+    border-top-left-radius: 30px;
+    border-top-right-radius: 30px;
+    padding: 10px;
+    color: #ffffff;
+    box-shadow: 0 0 50px rgba(172, 123, 196, 0.5);
+  }
+
+  #addTaskButton {
+    background-color: #8b7cb3;
+    border: none;
+  }
+
+  #addTaskButton:hover {
+    background-color: #ffb700ad;
+    color: black;
+  }
+
+  .no-tasks {
+    background-color: #fcfcfc;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 50px rgba(206, 186, 217, 0.5);
+  }
+
+  .dropdown2 {
+    position: relative;
+    display: inline-block;
+    float: left;
+}
+
+  .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #f9f9f9;
+      min-width: 200%;
+
+      z-index: 1;
+      left: -500%; /* Adjust the value as needed to move it to the left */
+  }
+
+  iframe {
+      width: 750px;
+      height: 400px; /* You can adjust the height as needed */
+      border: none; /* Remove iframe border */
+  }
+
+  .dropdown {
+    float: right;
+  }
+ 
+  
+</style>
+
+<div class="container">
+  <div class="box">
+    <div class="title-box">
+      <h1 id="title" align="center">{{taskTitle}}</h1>
+    </div>
+    <div class="form-container">
+      <form action="/tasks" method="POST" class="d-flex flex-column">
+        <div class="form-group" align="center">
+          <label for="dueDate">{{dueDate}}</label>
+          <input
+            type="date"
+            name="dueDate"
+            id="dueDate"
+            class="form-control"
+            style="width: auto"
+          />
+          <label for="dueTime">{{dueTime}}</label>
+          <input
+            type="time"
+            name="dueTime"
+            id="duetime"
+            class="form-control"
+            style="width: auto"
+          />
+        </div>
+        
+
+        <div class="form-group" align="center">
+          <label for="task">{{taskEnter}}</label>
+          <textarea
+            name="task"
+            id="task"
+            class="form-control"
+            rows="1"
+            style="font-size: 24px"
+            autofocus
+          ></textarea>
+        </div>
+
+        <button
+          type="submit"
+          id="addTaskButton"
+          class="btn btn-primary align-self-center"
+        >
+          {{taskButton}}
+        </button>
+      </form>
+    
+    
+    </div>
+    <ul class="list-group list-group-flush" id="tasks">
+      <li class="list-group-item">
+          <div>
+              <div class="dropdown2">
+                  <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      {{archiveTaskButton}}
+                  </button>
+                  <div class="dropdown-menu" style=".dropdown-menu.show{
+                    width: 750px;
+                    }"</div>
+                      <iframe src="/archivedtasks" style="background-color: #f7eefdd3;"></iframe>
+                  </div>
+              </div>
+          </div>
+          <div class="dropdown">
+              <button class="btn btn-secondary dropdown-toggle" type="button" id="sortDropdownButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  {{sortBy}}
+              </button>
+              <div class="dropdown-menu dropdown-menu-right" aria-labelledby="sortDropdownButton">
+                  <a class="dropdown-item" href="/tasks?sort_method=default">{{oldToNew}} {% if user.defaultsort == "Task.date" %}<b>{{sortDefault}}</b>{% endif %}</a>
+                  <a class="dropdown-item" href="/tasks?sort_method=newest">{{newToOld}} {% if user.defaultsort == "task.date DESC" %}<b>{{sortDefault}}</b>{% endif %}</a>
+                  <a class="dropdown-item" href="/tasks?sort_method=due_date">{{sortDueDate}} {% if user.defaultsort == "Task.due_date, Task.due_time" %}<b>{{sortDefault}}</b>{% endif %}</a>
+                  <a class="dropdown-item" href="/tasks?sort_method=data">{{alphabetically}} {% if user.defaultsort == "lower(task.data)" %}<b>{{sortDefault}}</b>{% endif %}</a>
+              </div>
+          </div>
+      </li>
+  </ul>
+  
+
+    {% if user.finished_tasks|length > 0 or user.tasks|length > 0 %}
+    {% if user.starred_at_top == 1 %}
+    <ul class="list-group list-group-flush" id="tasks">
+      {% for task in tasks if task.starred == 1 %}
+      <li
+        class="list-group-item"
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        "
+      >
+        <div>
+          <button class="btn btn-success" onClick="markTask({{ task.id }})">
+            <span class="fa fa-check"></span>
+          </button>
+          <span class="dataLine">{{ task.data }}</span>
+          {%  if task.due_date and task.due_time %}
+            <span class="dataLine" style="margin-left: 10px; color: grey">
+              {{taskDueDate}} {% if user.language == 'en' %} {{ task.due_date.strftime('%m/%d/%Y') }} {{at}} {{ task.due_time.strftime('%I:%M %p') }} {% else %} {{ task.due_date.strftime('%d.%m.%Y') }} {{at}} {{ task.due_time.strftime('%I:%M %p') }} {% endif %} 
+            </span>
+          {% elif task.due_date %}
+            <span class="dataLine" style="margin-left: 10px; color: grey">
+              {{taskDueDate}} {% if user.language == 'en' %} {{ task.due_date.strftime('%m/%d/%Y') }} {% else %} {{ task.due_date.strftime('%d.%m.%Y') }} {% endif %} 
+            </span>
+          {% endif %}
+        </div>
+        <div style="margin-left: auto; color: grey; padding-right: 5px">
+          <a href="#" onClick="starTask({{ task.id }})">
+            {% if task.starred != 1%}
+            <i class="fa-regular fa-star" style="color: #4d4d4d;"></a></i>
+            {% else %}
+            <i class="fa-solid fa-star" style="color: #ffd700;"></i></a></i>
+            {% endif %}
+          &nbsp;{% if user.language == 'en' %} {{ task.date.strftime('%I:%M %p %m/%d/%y') }} {% else %} {{ task.date.strftime('%H:%M %d.%m.%Y') }} {% endif %} 
+        </div>
+        <button
+          type="button"
+          class="btn btn-danger"
+          onClick="deleteTask({{ task.id }})"
+        >
+          <span aria-hidden="true" class="fa fa-trash"></span>
+        </button>
+      </li>
+      {% endfor %}
+    </ul>
+    <ul class="list-group list-group-flush" id="tasks">
+      {% for task in tasks if task.starred != 1 %}
+      <li
+        class="list-group-item"
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        "
+      >
+        <div>
+          <button class="btn btn-success" onClick="markTask({{ task.id }})">
+            <span class="fa fa-check"></span>
+          </button>
+          <span class="dataLine">{{ task.data }}</span>
+          {%  if task.due_date and task.due_time %}
+            <span class="dataLine" style="margin-left: 10px; color: grey">
+              {{taskDueDate}} {% if user.language == 'en' %} {{ task.due_date.strftime('%m/%d/%Y') }} {{at}} {{ task.due_time.strftime('%I:%M %p') }} {% else %} {{ task.due_date.strftime('%d.%m.%Y') }} {{at}} {{ task.due_time.strftime('%H:%M') }} {% endif %} 
+            </span>
+          {% elif task.due_date %}
+            <span class="dataLine" style="margin-left: 10px; color: grey">
+              {{taskDueDate}} {% if user.language == 'en' %} {{ task.due_date.strftime('%m/%d/%Y') }} {% else %} {{ task.due_date.strftime('%d.%m.%Y') }} {% endif %} 
+            </span>
+          {% endif %}
+        </div>
+        <div style="margin-left: auto; color: grey; padding-right: 5px">
+          <a href="#" onClick="starTask({{ task.id }})">
+            {% if task.starred != 1%}
+            <i class="fa-regular fa-star" style="color: #4d4d4d;"></a></i>
+            {% else %}
+            <i class="fa-solid fa-star" style="color: #ffd700;"></i></a></i>
+            {% endif %}
+            &nbsp;{% if user.language == 'en' %} {{ task.date.strftime('%I:%M %p %m/%d/%y') }} {% else %} {{ task.date.strftime('%H:%M %d.%m.%Y') }} {% endif %} 
+          </div>
+        <button
+          type="button"
+          class="btn btn-danger"
+          onClick="deleteTask({{ task.id }})"
+        >
+          <span aria-hidden="true" class="fa fa-trash"></span>
+        </button>
+      </li>
+      {% endfor %}
+      {% else %}
+      <ul class="list-group list-group-flush" id="tasks">
+        {% for task in tasks %}
+        <li
+          class="list-group-item"
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          "
+        >
+          <div>
+            <button class="btn btn-success" onClick="markTask({{ task.id }})">
+              <span class="fa fa-check"></span>
+            </button>
+            <span class="dataLine">{{ task.data }}</span>
+            {%  if task.due_date and task.due_time %}
+              <span class="dataLine" style="margin-left: 10px; color: grey">
+                {{taskDueDate}} {% if user.language == 'en' %} {{ task.due_date.strftime('%m/%d/%Y') }} {{at}} {{ task.due_time.strftime('%I:%M %p') }} {% else %} {{ task.due_date.strftime('%d.%m.%Y') }} {{at}} {{ task.due_time.strftime('%H:%M') }} {% endif %} 
+              </span>
+            {% elif task.due_date %}
+              <span class="dataLine" style="margin-left: 10px; color: grey">
+                {{taskDueDate}} {% if user.language == 'en' %} {{ task.due_date.strftime('%m/%d/%Y') }} {% else %} {{ task.due_date.strftime('%d.%m.%Y') }} {% endif %} 
+              </span>
+            {% endif %}
+          </div>
+          <div style="margin-left: auto; color: grey; padding-right: 5px">
+            <a href="#" onClick="starTask({{ task.id }})">
+              {% if task.starred != 1%}
+              <i class="fa-regular fa-star" style="color: #4d4d4d;"></a></i>
+              {% else %}
+              <i class="fa-solid fa-star" style="color: #ffd700;"></i></a></i>
+              {% endif %}
+              &nbsp;{% if user.language == 'en' %} {{ task.date.strftime('%I:%M %p %m/%d/%y') }} {% else %} {{ task.date.strftime('%H:%M %d.%m.%Y') }} {% endif %} 
+            </div>
+          <button
+            type="button"
+            class="btn btn-danger"
+            onClick="deleteTask({{ task.id }})"
+          >
+            <span aria-hidden="true" class="fa fa-trash"></span>
+          </button>
+        </li>
+        {% endfor %}
+        {% endif %}
+    </ul>
+
+    <br />
+    {% if user.finished_tasks|length > 0 %}
+
+    <h3 align="center">
+      Completed Tasks&nbsp;<button
+        class="btn btn-danger"
+        onClick="confirmClearAll()"
+      >
+        <span id="" class="">Clear All</span>
+      </button>
+    </h3>
+    <ul class="list-group list-group-flush" id="completed-tasks">
+      {% for finishedtask in user.finished_tasks %}
+      <li
+        class="list-group-item"
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        "
+      >
+        <div>
+          <button
+            class="btn btn-primary"
+            onClick="unMarkTask({{ finishedtask.id }})"
+          >
+            <span id="" class="fa fa-arrow-up"></span>
+          </button>
+          <span class="dataLine"><s>{{ finishedtask.data }}</s></span>
+          {%  if finishedtask.due_date and finishedtask.due_time %}
+            <span class="dataLine" style="margin-left: 10px; color: grey">
+              {{taskDueDate}} {% if user.language == 'en' %} {{ finishedtask.due_date.strftime('%m/%d/%Y') }} {{at}} {{ finishedtask.due_time.strftime('%I:%M %p') }} {% else %} {{ finishedtask.due_date.strftime('%d.%m.%Y') }} {{at}} {{ finishedtask.due_time.strftime('%H:%M') }} {% endif %} 
+            </span>
+          {% elif finishedtask.due_date %}
+            <span class="dataLine" style="margin-left: 10px; color: grey">
+              {{taskDueDate}} {% if user.language == 'en' %} {{ finishedtask.due_date.strftime('%m/%d/%Y') }} {% else %} {{ finishedtask.due_date.strftime('%d.%m.%Y') }} {% endif %} 
+            </span>
+          {% endif %}
+        </div>
+        <div style="margin-left: auto; color: grey; padding-right: 5px">
+          {% if user.language == 'en' %} {{ finishedtask.date.strftime('%I:%M %p %m/%d/%y') }} {% else %} {{ finishedtask.date.strftime('%H:%M %d.%m.%Y') }} {% endif %} 
+        </div>
+        <button
+          type="button"
+          class="btn btn-danger"
+          onClick="deleteFinishedTask({{ finishedtask.id }})"
+        >
+          <span aria-hidden="true" class="fa fa-trash"></span>
+        </button>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %} {% else %}
+    <br />
+    <center class="no-tasks">
+      <h3>{{congrats1}}</h3>
+      <h4>{{congrats2}}</h4>
+      <img src="../static/sleeping-bear.gif" />
+    </center>
+    {% endif %}
+
+    
+    <br />
+  </div>
+</div>
+<script>
+  document.getElementById("task").addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      document.getElementById("addTaskButton").click();
+    }
+  });
+</script>
+<script>
+  function confirmClearAll() {
+    if (confirm("Are you sure you want to clear all completed tasks?")) {
+      clearAllCompletedTasks();
+    }
+  }
+
+  function clearAllCompletedTasks() {
+    fetch("/clear-all-completed-tasks", {
+      method: "POST",
+    }).then((_res) => {
+      window.location.reload();
+    });
+  }
+</script>
+{% endblock %}

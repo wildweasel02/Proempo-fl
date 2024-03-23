@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+{% block title %}Reports - ProEmPo{% endblock %}
+{% block content %}
+
+<style>
+    h1 {
+        background-color: rgba(152, 125, 209, 0.65);
+        margin-top: 40px;
+        margin-bottom: 0px;
+        border-top-left-radius: 30px;
+        border-top-right-radius: 30px;
+        padding: 10px;
+        color: #ffffff;
+        box-shadow: 0 0 50px rgba(172, 123, 196, 0.5);
+    }
+
+    .reports-container {
+        background-color: #fcfcfc;
+        padding: 50px;
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+        box-shadow: 0 0 50px rgba(206, 186, 217, 0.5);
+    }
+
+    ul {
+        text-align: center;
+        list-style-position: inside;
+        padding: 0px;
+    }
+
+    .goals-and-frequent-container {
+        display: flex; /* Display children horizontally */
+        justify-content: space-between; /* Space between children */
+    }
+
+    .goals-count-container {
+        text-align: center;
+        padding: 20px;
+        background-color: rgb(236, 227, 255);
+        border-radius: 10px;
+        margin-top: 50px;
+        max-width: 430px;
+        flex: 1;
+    }
+
+    .frequent-day-container {
+        text-align: center;
+        padding: 20px;
+        background-color: rgb(236, 227, 255);
+        border-radius: 10px;
+        margin-top: 50px;
+        max-width: 430px;
+        flex: 1; 
+    }
+    
+    
+    h6 {
+        padding-top: 20px;
+    }
+
+    .goals-count {
+        font-size: 40px;
+        font-weight: bold;
+        color: #242628;
+        animation: countUp 2s ease-out forwards;
+    }
+
+    .frequent-day-container img {
+        max-width: 150px;
+    }
+
+    @keyframes countUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .linearGraph {
+        margin-top: 50px;
+    }
+
+    @media (max-width: 1200px) {
+        .reports-container {
+            padding: 15px;
+        }
+
+        .goals-and-frequent-container {
+            flex-direction: column; 
+        }
+
+        .goals-count-container,
+        .frequent-day-container {
+            max-width: 100%; 
+            margin-top: 20px; 
+            margin: 20px;
+        }
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<div class="container">
+    <h1 align="center">{{reportsTitle}}</h1>
+    <div class="reports-container">
+        <div>
+            <h5 align="center">{{chart1Title}}</h5>
+            <canvas id="taskChart" width="300" height="150"></canvas>
+        </div>
+        <div class="goals-and-frequent-container">
+            <div class="goals-count-container">
+                <h5 align="center">{{goalsAchieved}}</h5>
+                <div id="goalsCount" class="goals-count">{{ goals_count }}</div>
+                <ul>
+                    {% if latest_completed_goals %}
+                        <h6>{{latestCompletedGoals}} <a href=/goals>Goals</a></h6>
+                        {% for goal in latest_completed_goals %}
+                            <li>{{ goal.specific }}</li>
+                        {% endfor %}
+                    {% elif no_goals_message %}
+                        <p>{{ no_goals_message|safe }}</p>
+                    {% endif %}
+                </ul>
+            </div>
+            <div class="frequent-day-container">
+                <h5>{{mostFrequentDayRating}}</h5>
+                <div id="dayFrequency" class="day-rate">
+                    {% if most_popular_rating == 'Good' %}
+                    <img src="../static/well.png" alt="Well">
+                    {% elif most_popular_rating == 'Excellent' %}
+                    <img src="../static/veryWell.png" alt="Excellent">
+                    {% elif most_popular_rating == 'Bad' %}
+                    <img src="../static/bad.png" alt="Bad">
+                    {% elif most_popular_rating == 'Horrible' %}
+                    <img src="../static/horrible.png" alt="Horrible">
+                    {% else %}
+                    <img src="../static/noMood.png" alt="No Mood Logged">
+                    <p>{{noDayRatings}}</p>
+                {% endif %}</div>
+            </div>
+        </div>
+        <div class="linearGraph">
+            <h5 align="center">{{dayHistory}}</h5>
+            <canvas id="dayRatingChart" width="300" height="150"></canvas>
+        </div>
+        
+    </div>
+</div>
+
+
+<script>
+    // data for the first chart
+    var finishedTasks = {{ finished_tasks|safe }};
+    var dates = finishedTasks.map(function(item) { return item.date; });
+    var count = finishedTasks.map(function(item) { return item.finished_count; });
+    var chart = new Chart(document.getElementById('taskChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: dates,
+            datasets: [{
+                label: 'Completed Tasks',
+                data: count,
+                backgroundColor: 'rgba(144, 206, 245, 0.5)',
+                borderColor: 'rgba(144, 206, 245, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+
+<script>
+    var dayRatingData = {{ day_rating_json | safe }};
+    var dates = dayRatingData.map(function(item) { return item.date; });
+    var ratings = dayRatingData.map(function(item) { return item.rating; });
+
+    var ctx = document.getElementById('dayRatingChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: dates,
+            datasets: [{
+                label: 'User Day Ratings',
+                data: ratings,
+                borderColor: 'rgba(255, 99, 132, 1)',
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                pointRadius: 5,  
+                tension: 0.4
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    min: 0,
+                    max: 4,
+                    ticks: {
+                        stepSize: 1,
+                        callback: function(value, index, values) {
+                            if (value === 1) return 'Horrible';
+                            if (value === 2) return 'Bad';
+                            if (value === 3) return 'Good';
+                            if (value === 4) return 'Excellent';
+                            return '';
+                        }
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    enabled: false  
+                }
+            }
+        }
+    });
+</script>
+
+
+
+
+{% endblock %}
