@@ -3,7 +3,7 @@
 2. Run install_dep included in the source code or run 'pip install -r requirements.txt' in the terminal
 3. Run app.py
 4. Follow onscreen instructions to access website hosted from your local computer
-
+---
 
 If getting the error "ModuleNotFoundError: No module named 'flask' " despite having flask, you have to create a virtual environment by:
 1. Navigate to View > Command Palette
